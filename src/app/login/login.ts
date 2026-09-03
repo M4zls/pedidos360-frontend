@@ -46,7 +46,7 @@ export class Login implements OnInit {
     this.error = null;
     this.loading = true;
     this.http
-      .post<LoginResponse>('http://localhost:8080/api/auth/login', {
+      .post<LoginResponse>('/api/auth/login', {
         username: this.username,
         password: this.password,
       })

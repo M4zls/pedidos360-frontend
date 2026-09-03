@@ -57,7 +57,7 @@ export class UserService {
     this.loading.set(true);
     this.error.set(null);
     this.http
-      .get<UserProfile>('http://localhost:8080/api/me', {
+      .get<UserProfile>('/api/me', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .subscribe({

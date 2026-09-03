@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────
+#  API Gateway de Pedidos360  (nginx como reverse proxy, NO un servicio aparte)
+#
+#  nginx hace dos cosas:
+#   1. Sirve el SPA de Angular (archivos estaticos).
+#   2. Enruta /api/* al microservicio que corresponde segun el prefijo.
+#
+#  Hoy auth e inventario viven en el mismo proceso Spring Boot (:8080), por eso
+#  AUTH_URL e INVENTORY_URL apuntan al mismo lugar. Cuando inventario se separe
+#  en su propio servicio, se cambia solo INVENTORY_URL (variable de entorno) y
+#  el gateway ya enruta distinto, sin tocar el front.
+#
+#  Variables (las resuelve envsubst al arrancar el contenedor nginx):
+#    AUTH_URL       -> default http://127.0.0.1:8080
+#    INVENTORY_URL  -> default http://127.0.0.1:8080
+# ─────────────────────────────────────────────────────────────
+
+server {
+  listen 80;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+
+  # --- Auth: login local + validacion de token (/api/auth/*, /api/me) ---
+  location /api/auth/ {
+    proxy_pass ${AUTH_URL};
+    include /etc/nginx/proxy_headers.conf;
+  }
+  location = /api/me {
+    proxy_pass ${AUTH_URL};
+    include /etc/nginx/proxy_headers.conf;
+  }
+
+  # --- Inventario: productos y movimientos de stock (/api/inventory/*) ---
+  location /api/inventory/ {
+    proxy_pass ${INVENTORY_URL};
+    include /etc/nginx/proxy_headers.conf;
+  }
+
+  # Cualquier otra /api/* que no matchee arriba -> 404 explicito del gateway.
+  location /api/ {
+    return 404;
+  }
+
+  # --- SPA: rutas del router de Angular caen en index.html ---
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
