@@ -36,6 +36,9 @@ propio App Registration y reemplazá `MICROSOFT_CLIENT_ID` / `MICROSOFT_TENANT`
 - `auth/` — `AuthService` (estado de sesión), `authGuard`, config MSAL y `callback/` (Redirect URI).
 - `dashboard/` — pantalla protegida; consume `GET /api/me`.
 - `user/` — `UserService` + menú de perfil del header.
+- `inventory/` — pantalla `/inventory`: tabla de productos, filtros, alta/edición y movimientos de stock (consume `/api/inventory/**`).
+
+`authInterceptor` agrega el `Bearer` a todas las llamadas a `/api/*`.
 
 El header de la app solo se muestra cuando hay sesión iniciada.
 
