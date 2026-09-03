@@ -1,0 +1,35 @@
+<section>
+  <h2 class="mb-1 text-xl font-semibold">Panel</h2>
+  <p class="mb-6 text-sm text-neutral-500">
+    Abrí el menú de perfil (arriba a la derecha) para ver los datos de tu cuenta.
+  </p>
+
+  @if (users.loading()) {
+    <p class="text-neutral-500">Cargando datos del usuario autenticado…</p>
+  }
+
+  @if (users.error()) {
+    <p class="rounded-md bg-red-50 px-3 py-2 text-red-700">{{ users.error() }}</p>
+  }
+
+  @if (users.profile(); as profile) {
+    <div class="rounded-xl border border-neutral-200 bg-white p-5">
+      <p class="mb-4">
+        El backend validó tu token de
+        <strong>{{ users.providerLabel(profile.provider) }}</strong>
+        correctamente.
+      </p>
+
+      <div class="flex items-center gap-4">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-lg font-bold text-white">
+          {{ users.initials() }}
+        </span>
+        <ul class="space-y-1 text-sm">
+          <li><strong>Nombre:</strong> {{ profile.name }}</li>
+          <li><strong>Email:</strong> {{ profile.email }}</li>
+          <li><strong>Sub (ID de usuario):</strong> <span class="font-mono text-xs">{{ profile.sub }}</span></li>
+        </ul>
+      </div>
+    </div>
+  }
+</section>

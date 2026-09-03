@@ -1,0 +1,17 @@
+@if (isAuthenticated) {
+  <header class="flex items-center justify-between bg-neutral-900 px-5 py-3 text-white">
+    <strong class="text-lg">
+      Pedidos<span class="text-orange-500">360</span>
+    </strong>
+    <nav class="flex items-center gap-3">
+      <a routerLink="/dashboard" class="text-sm text-orange-200 no-underline hover:underline">Panel</a>
+      <app-user-menu (logout)="logout()" />
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-3xl p-6">
+    <router-outlet />
+  </main>
+} @else {
+  <router-outlet />
+}

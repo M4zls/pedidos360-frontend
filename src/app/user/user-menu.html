@@ -1,0 +1,79 @@
+<div class="relative">
+  <button
+    type="button"
+    (click)="toggle()"
+    [attr.aria-expanded]="open()"
+    class="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-white transition hover:bg-white/10"
+  >
+    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-xs font-bold">
+      {{ users.initials() }}
+    </span>
+    <span class="hidden text-sm sm:block">{{ users.profile()?.name ?? '—' }}</span>
+    <svg
+      class="h-4 w-4 opacity-70 transition"
+      [class.rotate-180]="open()"
+      viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+    >
+      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+    </svg>
+  </button>
+
+  @if (open()) {
+    <div
+      class="absolute right-0 z-20 mt-2 w-72 overflow-hidden rounded-xl border border-neutral-200 bg-white text-neutral-800 shadow-xl"
+    >
+      <!-- Cabecera -->
+      <div class="flex items-center gap-3 border-b border-neutral-100 bg-neutral-50 p-4">
+        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-white">
+          {{ users.initials() }}
+        </span>
+        <div class="min-w-0">
+          <p class="truncate font-semibold">{{ users.profile()?.name ?? 'Usuario' }}</p>
+          <p class="truncate text-sm text-neutral-500">{{ users.profile()?.email ?? '—' }}</p>
+        </div>
+      </div>
+
+      <!-- Contenido -->
+      <div class="p-4 text-sm">
+        @if (users.loading()) {
+          <p class="text-neutral-500">Cargando perfil…</p>
+        } @else if (users.error()) {
+          <p class="rounded-md bg-red-50 px-3 py-2 text-red-700">{{ users.error() }}</p>
+          <button
+            type="button"
+            (click)="users.load(true)"
+            class="mt-2 text-orange-600 hover:underline"
+          >
+            Reintentar
+          </button>
+        } @else if (users.profile(); as profile) {
+          <dl class="space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-neutral-500">Proveedor</dt>
+              <dd>
+                <span class="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
+                  {{ users.providerLabel(profile.provider) }}
+                </span>
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-3">
+              <dt class="text-neutral-500">ID</dt>
+              <dd class="max-w-[10rem] truncate font-mono text-xs" [title]="profile.sub">{{ profile.sub }}</dd>
+            </div>
+          </dl>
+        }
+      </div>
+
+      <!-- Acciones -->
+      <div class="border-t border-neutral-100 p-2">
+        <button
+          type="button"
+          (click)="close(); logout.emit()"
+          class="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  }
+</div>
