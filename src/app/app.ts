@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthService } from './auth/auth.service';
 import { msalLoginRequest } from './auth/microsoft/microsoft-auth.config';
@@ -8,7 +8,7 @@ import { UserService } from './user/user.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, UserMenu],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, UserMenu],
   templateUrl: './app.html',
 })
 export class App implements OnInit {

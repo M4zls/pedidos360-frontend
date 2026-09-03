@@ -56,10 +56,9 @@ export class UserService {
 
     this.loading.set(true);
     this.error.set(null);
+    // El Bearer lo agrega authInterceptor.
     this.http
-      .get<UserProfile>('/api/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get<UserProfile>('/api/me')
       .subscribe({
         next: (profile) => {
           this.profile.set(profile);

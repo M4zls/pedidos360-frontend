@@ -4,12 +4,19 @@
       Pedidos<span class="text-orange-500">360</span>
     </strong>
     <nav class="flex items-center gap-3">
-      <a routerLink="/dashboard" class="text-sm text-orange-200 no-underline hover:underline">Panel</a>
+      <a
+        routerLink="/dashboard" routerLinkActive="underline"
+        class="text-sm text-orange-200 no-underline hover:underline"
+      >Panel</a>
+      <a
+        routerLink="/inventory" routerLinkActive="underline"
+        class="text-sm text-orange-200 no-underline hover:underline"
+      >Inventario</a>
       <app-user-menu (logout)="logout()" />
     </nav>
   </header>
 
-  <main class="mx-auto max-w-3xl p-6">
+  <main class="mx-auto max-w-5xl p-6">
     <router-outlet />
   </main>
 } @else {

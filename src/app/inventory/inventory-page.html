@@ -1,0 +1,115 @@
+<section>
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-xl font-semibold">Inventario</h2>
+    <button
+      type="button" (click)="openCreate()"
+      class="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500"
+    >
+      + Nuevo producto
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="mb-4 flex flex-wrap items-center gap-3">
+    <select
+      [(ngModel)]="category" (ngModelChange)="reload()"
+      class="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm"
+    >
+      <option value="">Todas las categorías</option>
+      @for (c of inventory.categories(); track c) {
+        <option [value]="c">{{ c }}</option>
+      }
+    </select>
+
+    <label class="flex items-center gap-2 text-sm">
+      <input type="checkbox" [(ngModel)]="onlyLowStock" (ngModelChange)="reload()" class="h-4 w-4" />
+      Solo bajo stock
+    </label>
+
+    <button type="button" (click)="reload()" class="text-sm text-orange-600 hover:underline">
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Panel activo (alta / edición / movimientos) -->
+  @switch (panel().kind) {
+    @case ('create') {
+      <div class="mb-5">
+        <app-product-form (saved)="onSaved()" (cancelled)="closePanel()" />
+      </div>
+    }
+    @case ('edit') {
+      <div class="mb-5">
+        <app-product-form [product]="$any(panel()).product" (saved)="onSaved()" (cancelled)="closePanel()" />
+      </div>
+    }
+    @case ('movements') {
+      <div class="mb-5">
+        <app-movement-panel [product]="$any(panel()).product" (closed)="closePanel()" />
+      </div>
+    }
+  }
+
+  @if (inventory.error()) {
+    <p class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ inventory.error() }}</p>
+  }
+
+  @if (inventory.loading()) {
+    <p class="text-neutral-500">Cargando inventario…</p>
+  } @else if (inventory.products().length === 0) {
+    <p class="text-neutral-500">No hay productos para el filtro actual.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-neutral-200">
+      <table class="w-full text-sm">
+        <thead class="bg-neutral-50 text-left text-neutral-500">
+          <tr>
+            <th class="px-3 py-2 font-medium">SKU</th>
+            <th class="px-3 py-2 font-medium">Producto</th>
+            <th class="px-3 py-2 font-medium">Categoría</th>
+            <th class="px-3 py-2 text-right font-medium">Stock</th>
+            <th class="px-3 py-2 text-right font-medium">Mín.</th>
+            <th class="px-3 py-2 text-right font-medium">Precio</th>
+            <th class="px-3 py-2 font-medium"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of inventory.products(); track p.id) {
+            <tr class="border-t border-neutral-100" [class.opacity-50]="!p.active">
+              <td class="px-3 py-2 font-mono text-xs">{{ p.sku }}</td>
+              <td class="px-3 py-2">
+                {{ p.name }}
+                <span class="text-neutral-400">/ {{ p.unit }}</span>
+              </td>
+              <td class="px-3 py-2 text-neutral-500">{{ p.category ?? '—' }}</td>
+              <td class="px-3 py-2 text-right">
+                <span
+                  class="rounded px-1.5 py-0.5 font-medium"
+                  [class]="p.lowStock ? 'bg-red-100 text-red-700' : 'text-neutral-700'"
+                >
+                  {{ p.stock }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-right text-neutral-500">{{ p.minStock }}</td>
+              <td class="px-3 py-2 text-right">{{ p.unitPrice | currency: 'ARS' : 'symbol-narrow' : '1.0-2' }}</td>
+              <td class="px-3 py-2">
+                <div class="flex justify-end gap-2 whitespace-nowrap">
+                  <button type="button" (click)="openMovements(p)" class="text-orange-600 hover:underline">
+                    Movimiento
+                  </button>
+                  <button type="button" (click)="openEdit(p)" class="text-neutral-600 hover:underline">
+                    Editar
+                  </button>
+                  @if (p.active) {
+                    <button type="button" (click)="deactivate(p)" class="text-red-600 hover:underline">
+                      Baja
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

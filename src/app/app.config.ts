@@ -1,6 +1,7 @@
 import { ApplicationConfig, importProvidersFrom, provideAppInitializer } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './auth/auth.interceptor';
 import {
   MsalBroadcastService,
   MsalGuardConfiguration,
@@ -17,8 +18,8 @@ const msalInstance: IPublicClientApplication = new PublicClientApplication(msalC
 
 // Usamos flujo de REDIRECT (mas robusto que popup: evita el bug de la
 // pestaña que se queda en about:blank). No usamos MsalGuard ni
-// MsalInterceptor (tenemos nuestro auth.guard.ts y el header Authorization
-// se arma a mano en dashboard.ts), asi que su config va al minimo.
+// MsalInterceptor: tenemos nuestro auth.guard.ts y nuestro authInterceptor
+// (agrega el Bearer a /api/*), asi que su config va al minimo.
 const msalGuardConfig: MsalGuardConfiguration = {
   interactionType: InteractionType.Redirect,
 };
@@ -31,7 +32,7 @@ const msalInterceptorConfig: MsalInterceptorConfiguration = {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     importProvidersFrom(MsalModule.forRoot(msalInstance, msalGuardConfig, msalInterceptorConfig)),
     MsalService,
     MsalBroadcastService,
