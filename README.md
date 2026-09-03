@@ -47,13 +47,9 @@ El header de la app solo se muestra cuando hay sesión iniciada.
 El front llama a rutas **relativas** (`/api/...`). Quién las resuelve:
 
 - **Desarrollo** (`npm start`): `proxy.conf.json` redirige `/api` → `http://localhost:8080`.
-- **Producción**: `nginx.conf.template` (+ `Dockerfile`) sirve el SPA y hace de
-  **API Gateway** — enruta `/api/auth`, `/api/me` e `/api/inventory` al servicio
-  que corresponda (`AUTH_URL` / `INVENTORY_URL`). No es un servicio aparte, es
-  config de nginx.
-
-```bash
-docker build -t pedidos360-web .
-docker run -p 8080:80 -e AUTH_URL=http://host.docker.internal:8080 \
-                      -e INVENTORY_URL=http://host.docker.internal:8080 pedidos360-web
-```
+  Este es el gateway mientras desarrollás.
+- **Producción**: `nginx.conf` — nginx sirve el SPA y hace de **API
+  Gateway**, enrutando por prefijo (`/api/auth`, `/api/me`, `/api/inventory`) al
+  servicio que corresponda (`AUTH_URL` / `INVENTORY_URL`). No es un servicio
+  aparte: es config de nginx. Se despliega poniendo esa config en un nginx que
+  sirva el contenido de `dist/`.
