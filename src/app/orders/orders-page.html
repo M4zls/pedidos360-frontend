@@ -1,0 +1,95 @@
+<div class="mx-auto max-w-5xl px-5 py-10">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-display text-3xl font-extrabold tracking-tight text-white">
+        {{ auth.isStaff() ? 'Pedidos' : 'Mis pedidos' }}
+      </h1>
+      <p class="mt-1 text-sm text-neutral-400">
+        {{ auth.isStaff()
+          ? 'Todos los pedidos. Avanzá el estado o cancelá.'
+          : 'Seguí el estado de tus pedidos.' }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      @if (auth.isStaff()) {
+        <select [(ngModel)]="statusFilter" (ngModelChange)="reload()" class="input w-auto">
+          <option class="bg-neutral-900" value="">Todos los estados</option>
+          @for (s of statuses; track s) {
+            <option class="bg-neutral-900" [value]="s">{{ labels[s] }}</option>
+          }
+        </select>
+      } @else {
+        <a routerLink="/home" class="btn-primary">Nuevo pedido</a>
+      }
+    </div>
+  </div>
+
+  @if (orders.loading()) {
+    <p class="mt-8 text-neutral-500">Cargando pedidos…</p>
+  }
+  @if (orders.error()) {
+    <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ orders.error() }}</p>
+  }
+  @if (actionError()) {
+    <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ actionError() }}</p>
+  }
+
+  <div class="mt-6 space-y-3">
+    @for (o of orders.orders(); track o.id) {
+      <div class="card p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <button type="button" (click)="toggle(o.id)" class="flex items-center gap-3 text-left">
+            <span class="font-display font-bold text-white">Pedido #{{ o.id }}</span>
+            <span class="badge {{ badge[o.status] }}">{{ labels[o.status] }}</span>
+            <span class="text-xs text-neutral-500">{{ expanded().has(o.id) ? '▲' : '▼' }}</span>
+          </button>
+          <span class="font-display text-lg font-extrabold text-white">
+            {{ o.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+          </span>
+        </div>
+
+        <p class="mt-1.5 text-xs text-neutral-500">
+          {{ o.createdAt | date: 'short' }}
+          @if (auth.isStaff()) { · {{ o.customerName || o.customerEmail }} }
+          @if (o.note) { · "{{ o.note }}" }
+        </p>
+
+        @if (expanded().has(o.id)) {
+          <ul class="mt-4 divide-y divide-white/5 border-t border-white/5 pt-3 text-sm">
+            @for (l of o.lines; track l.productId) {
+              <li class="flex justify-between py-1.5 text-neutral-300">
+                <span>{{ l.quantity }} × {{ l.name }}</span>
+                <span class="text-white">{{ l.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          @if (auth.isStaff() && nextStatus(o)) {
+            <button type="button" (click)="advance(o)"
+              class="rounded-xl bg-orange-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-orange-400">
+              Marcar como {{ labels[nextStatus(o)!] }}
+            </button>
+          }
+          @if ((auth.isStaff() && o.status !== 'ENTREGADO' && o.status !== 'CANCELADO') || canCustomerCancel(o)) {
+            <button type="button" (click)="cancel(o)" class="btn-danger">Cancelar</button>
+          }
+        </div>
+      </div>
+    } @empty {
+      @if (!orders.loading()) {
+        <div class="card flex flex-col items-center gap-3 px-6 py-14 text-center">
+          <span class="text-4xl">🧾</span>
+          <p class="text-neutral-400">
+            {{ auth.isStaff() ? 'No hay pedidos.' : 'Todavía no hiciste pedidos.' }}
+          </p>
+          @if (!auth.isStaff()) {
+            <a routerLink="/home" class="btn-primary">Ver la carta</a>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

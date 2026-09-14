@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 import { AuthService } from '../auth/auth.service';
+import { UserService } from '../user/user.service';
 import { msalLoginRequest } from '../auth/microsoft/microsoft-auth.config';
 
 interface LoginResponse {
@@ -24,6 +25,7 @@ interface LoginResponse {
 export class Login implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private users = inject(UserService);
   private msal = inject(MsalService);
   private router = inject(Router);
 
@@ -34,7 +36,7 @@ export class Login implements OnInit {
 
   ngOnInit(): void {
     if (this.auth.isAuthenticated) {
-      this.router.navigateByUrl('/dashboard');
+      this.router.navigateByUrl('/home');
     }
   }
 
@@ -53,8 +55,9 @@ export class Login implements OnInit {
       .subscribe({
         next: (res) => {
           this.auth.setLocalSession(this.username, res.token);
+          this.users.ensureLoaded(true);
           this.loading = false;
-          this.router.navigateByUrl('/dashboard');
+          this.router.navigateByUrl('/home');
         },
         error: () => {
           this.error = 'Usuario o contraseña incorrectos.';

@@ -1,0 +1,170 @@
+<!-- Hero -->
+<section class="relative overflow-hidden border-b border-white/10">
+  <div class="pointer-events-none absolute -right-32 -top-24 h-96 w-96 rounded-full bg-orange-500/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl"></div>
+
+  <div class="mx-auto grid max-w-6xl items-center gap-8 px-5 py-14 md:grid-cols-2 md:py-20">
+    <div>
+      <span class="badge bg-orange-500/15 text-orange-300">Cocina abierta ahora</span>
+      <h1 class="mt-4 font-display text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
+        Sabor de verdad,<br />
+        <span class="text-orange-500">hecho para vos</span>
+      </h1>
+      <p class="mt-4 max-w-md text-sm leading-relaxed text-neutral-400">
+        Hamburguesas, tacos y sándwiches recién hechos. Elegí de la carta, armá tu
+        pedido y seguí el estado en tiempo real.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="#carta" class="btn-primary">Ver la carta</a>
+        <a routerLink="/orders" class="btn-ghost">
+          {{ auth.isStaff() ? 'Gestionar pedidos' : 'Mis pedidos' }}
+        </a>
+      </div>
+      <dl class="mt-8 flex gap-8">
+        <div>
+          <dt class="text-2xl font-extrabold text-white">{{ inventory.products().length }}</dt>
+          <dd class="text-xs uppercase tracking-wide text-neutral-500">platos</dd>
+        </div>
+        <div>
+          <dt class="text-2xl font-extrabold text-white">{{ inventory.categories().length }}</dt>
+          <dd class="text-xs uppercase tracking-wide text-neutral-500">categorías</dd>
+        </div>
+        <div>
+          <dt class="text-2xl font-extrabold text-white">15'</dt>
+          <dd class="text-xs uppercase tracking-wide text-neutral-500">preparación</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/50">
+      <app-food-image
+        src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=800&q=75"
+        category="Hamburguesas" alt="Plato destacado" emojiSize="6rem"
+      />
+      <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5">
+        <p class="font-display text-lg font-bold text-white">5 Layer Burger</p>
+        <p class="text-xs text-orange-300">el más pedido de la semana</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Carta -->
+<section id="carta" class="mx-auto max-w-6xl px-5 py-12">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h2 class="font-display text-3xl font-extrabold tracking-tight text-white">Nuestra carta</h2>
+      <p class="mt-1 text-sm text-neutral-400">
+        @if (auth.isCliente()) { Tocá "Agregar" para armar tu pedido. }
+        @else { Vista de la carta. }
+      </p>
+    </div>
+    @if (auth.isStaff()) {
+      <a routerLink="/inventory" class="btn-ghost">Gestionar inventario</a>
+    }
+  </div>
+
+  <!-- Pills de categoría -->
+  <div class="mt-6 flex flex-wrap gap-2">
+    <button type="button" (click)="setCategory('')"
+      class="chip" [class.chip-active]="activeCategory() === ''">Todo</button>
+    @for (c of inventory.categories(); track c) {
+      <button type="button" (click)="setCategory(c)"
+        class="chip" [class.chip-active]="activeCategory() === c">{{ c }}</button>
+    }
+  </div>
+
+  @if (inventory.loading()) {
+    <p class="mt-8 text-neutral-500">Cargando carta…</p>
+  }
+  @if (inventory.error()) {
+    <p class="mt-8 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+      {{ inventory.error() }}
+    </p>
+  }
+
+  <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    @for (p of filtered(); track p.id) {
+      <article class="card group flex flex-col overflow-hidden transition hover:border-white/20 hover:shadow-orange-950/20">
+        <div class="relative aspect-[4/3] overflow-hidden">
+          <div class="h-full w-full transition duration-500 group-hover:scale-105">
+            <app-food-image [src]="p.imageUrl" [category]="p.category" [alt]="p.name" />
+          </div>
+          <span class="badge absolute left-3 top-3 bg-black/60 text-white backdrop-blur">
+            {{ p.unitPrice | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+          </span>
+          @if (auth.isStaff() && p.lowStock) {
+            <span class="badge absolute right-3 top-3 bg-red-500/90 text-white">stock bajo</span>
+          }
+        </div>
+
+        <div class="flex flex-1 flex-col p-4">
+          <h3 class="font-display font-bold text-white">{{ p.name }}</h3>
+          <p class="mt-0.5 text-xs text-neutral-500">
+            {{ p.category || 'Sin categoría' }}
+            @if (auth.isStaff()) { · stock {{ p.stock }} }
+          </p>
+
+          @if (auth.isCliente()) {
+            <div class="mt-3 flex items-center gap-2">
+              @if (qtyInCart(p.id) > 0) {
+                <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-1">
+                  <button type="button" (click)="setQty(p, qtyInCart(p.id) - 1)"
+                    class="h-6 w-6 rounded-md text-neutral-300 hover:bg-white/10">–</button>
+                  <span class="w-5 text-center text-sm font-semibold text-white">{{ qtyInCart(p.id) }}</span>
+                  <button type="button" (click)="add(p)"
+                    class="h-6 w-6 rounded-md text-neutral-300 hover:bg-white/10">+</button>
+                </div>
+              } @else {
+                <button type="button" (click)="add(p)" class="btn-primary w-full">Agregar</button>
+              }
+            </div>
+          }
+        </div>
+      </article>
+    } @empty {
+      @if (!inventory.loading()) {
+        <p class="text-neutral-500">No hay platos en esta categoría.</p>
+      }
+    }
+  </div>
+</section>
+
+<!-- Carrito -->
+@if (auth.isCliente() && cartItems().length > 0) {
+  <div class="sticky bottom-4 z-20 mx-auto max-w-6xl px-5">
+    <div class="card border-orange-400/25 bg-[var(--color-surface-2)] p-4 shadow-2xl shadow-black/50">
+      <div class="flex items-center justify-between">
+        <h3 class="font-display font-bold text-white">Tu pedido · {{ cartCount() }} ítems</h3>
+        <button type="button" (click)="clearCart()" class="text-xs text-neutral-400 hover:text-white">Vaciar</button>
+      </div>
+
+      <ul class="my-3 max-h-40 divide-y divide-white/5 overflow-auto text-sm">
+        @for (it of cartItems(); track it.product.id) {
+          <li class="flex items-center justify-between py-1.5 text-neutral-300">
+            <span>{{ it.quantity }} × {{ it.product.name }}</span>
+            <span class="flex items-center gap-3">
+              <span class="text-white">{{ it.product.unitPrice * it.quantity | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+              <button type="button" (click)="setQty(it.product, 0)" class="text-xs text-red-400 hover:text-red-300">quitar</button>
+            </span>
+          </li>
+        }
+      </ul>
+
+      <input type="text" [(ngModel)]="note" placeholder="Nota para el pedido (opcional)" class="input mb-3" />
+
+      @if (submitError()) {
+        <p class="mb-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">{{ submitError() }}</p>
+      }
+
+      <div class="flex items-center justify-between gap-4">
+        <span class="font-display text-lg font-extrabold text-white">
+          {{ cartTotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+        </span>
+        <button type="button" (click)="confirm()" [disabled]="submitting()" class="btn-primary">
+          {{ submitting() ? 'Enviando…' : 'Confirmar pedido' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

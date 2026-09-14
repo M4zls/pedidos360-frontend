@@ -8,6 +8,7 @@ interface FormModel {
   name: string;
   category: string;
   unit: string;
+  imageUrl: string;
   unitPrice: number | null;
   minStock: number;
   initialStock: number;
@@ -36,6 +37,7 @@ export class ProductForm implements OnInit {
     name: '',
     category: '',
     unit: 'unidad',
+    imageUrl: '',
     unitPrice: null,
     minStock: 0,
     initialStock: 0,
@@ -50,6 +52,7 @@ export class ProductForm implements OnInit {
         name: p.name,
         category: p.category ?? '',
         unit: p.unit,
+        imageUrl: p.imageUrl ?? '',
         unitPrice: p.unitPrice,
         minStock: p.minStock,
         initialStock: 0,
@@ -64,6 +67,7 @@ export class ProductForm implements OnInit {
 
     const m = this.model;
     const category = m.category.trim() || null;
+    const imageUrl = m.imageUrl.trim() || null;
     const done = {
       next: () => {
         this.saving.set(false);
@@ -82,6 +86,7 @@ export class ProductForm implements OnInit {
           name: m.name.trim(),
           category,
           unit: m.unit.trim(),
+          imageUrl,
           unitPrice: m.unitPrice ?? 0,
           minStock: m.minStock,
           active: m.active,
@@ -94,6 +99,7 @@ export class ProductForm implements OnInit {
           name: m.name.trim(),
           category,
           unit: m.unit.trim(),
+          imageUrl,
           unitPrice: m.unitPrice ?? 0,
           minStock: m.minStock,
           initialStock: m.initialStock,

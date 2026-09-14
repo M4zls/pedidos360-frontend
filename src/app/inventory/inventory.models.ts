@@ -6,6 +6,7 @@ export interface Product {
   name: string;
   category: string | null;
   unit: string;
+  imageUrl: string | null;
   unitPrice: number;
   stock: number;
   minStock: number;
@@ -32,6 +33,7 @@ export interface CreateProductRequest {
   name: string;
   category: string | null;
   unit: string;
+  imageUrl: string | null;
   unitPrice: number;
   minStock: number;
   initialStock: number;
@@ -41,6 +43,7 @@ export interface UpdateProductRequest {
   name: string;
   category: string | null;
   unit: string;
+  imageUrl: string | null;
   unitPrice: number;
   minStock: number;
   active: boolean;

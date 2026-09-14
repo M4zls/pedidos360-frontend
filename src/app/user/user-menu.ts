@@ -16,6 +16,8 @@ export class UserMenu implements OnInit {
 
   /** El cierre de sesion vive en App (necesita MsalService). */
   readonly logout = output<void>();
+  /** Pide un token nuevo a Azure para tomar cambios de rol (App Roles). */
+  readonly refresh = output<void>();
 
   protected readonly open = signal(false);
 

@@ -1,94 +1,70 @@
-<form (ngSubmit)="submit()" class="rounded-xl border border-neutral-200 bg-white p-5">
-  <h3 class="mb-4 text-lg font-semibold">
+<form (ngSubmit)="submit()" class="card p-6">
+  <h3 class="font-display text-lg font-bold text-white">
     {{ editing() ? 'Editar producto' : 'Nuevo producto' }}
   </h3>
 
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">SKU</span>
-      <input
-        name="sku" [(ngModel)]="model.sku" required maxlength="40"
-        [disabled]="editing()"
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2 disabled:bg-neutral-100"
-      />
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <label class="block">
+      <span class="field-label">SKU</span>
+      <input name="sku" [(ngModel)]="model.sku" required maxlength="40" [disabled]="editing()"
+        class="input disabled:opacity-50" />
     </label>
 
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">Nombre</span>
-      <input
-        name="name" [(ngModel)]="model.name" required maxlength="120"
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-      />
+    <label class="block">
+      <span class="field-label">Nombre</span>
+      <input name="name" [(ngModel)]="model.name" required maxlength="120" class="input" />
     </label>
 
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">Categoría</span>
-      <input
-        name="category" [(ngModel)]="model.category" maxlength="60"
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-      />
+    <label class="block">
+      <span class="field-label">Categoría</span>
+      <input name="category" [(ngModel)]="model.category" maxlength="60"
+        placeholder="Hamburguesas, Tacos, Bebidas…" class="input" />
     </label>
 
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">Unidad</span>
-      <input
-        name="unit" [(ngModel)]="model.unit" required maxlength="20"
-        placeholder="unidad, kg, litro…"
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-      />
+    <label class="block">
+      <span class="field-label">Unidad</span>
+      <input name="unit" [(ngModel)]="model.unit" required maxlength="20"
+        placeholder="unidad, porción…" class="input" />
     </label>
 
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">Precio unitario</span>
-      <input
-        name="unitPrice" type="number" min="0" step="0.01"
-        [(ngModel)]="model.unitPrice" required
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-      />
+    <label class="block sm:col-span-2">
+      <span class="field-label">URL de la foto</span>
+      <input name="imageUrl" [(ngModel)]="model.imageUrl" maxlength="500"
+        placeholder="https://…  (opcional)" class="input" />
     </label>
 
-    <label class="block text-sm">
-      <span class="mb-1 block font-medium text-neutral-600">Stock mínimo</span>
-      <input
-        name="minStock" type="number" min="0"
-        [(ngModel)]="model.minStock" required
-        class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-      />
+    <label class="block">
+      <span class="field-label">Precio unitario</span>
+      <input name="unitPrice" type="number" min="0" step="0.01" [(ngModel)]="model.unitPrice" required
+        class="input" />
+    </label>
+
+    <label class="block">
+      <span class="field-label">Stock mínimo</span>
+      <input name="minStock" type="number" min="0" [(ngModel)]="model.minStock" required class="input" />
     </label>
 
     @if (!editing()) {
-      <label class="block text-sm">
-        <span class="mb-1 block font-medium text-neutral-600">Stock inicial</span>
-        <input
-          name="initialStock" type="number" min="0"
-          [(ngModel)]="model.initialStock" required
-          class="w-full rounded-lg border border-neutral-300 px-3 py-2"
-        />
+      <label class="block">
+        <span class="field-label">Stock inicial</span>
+        <input name="initialStock" type="number" min="0" [(ngModel)]="model.initialStock" required class="input" />
       </label>
     } @else {
-      <label class="flex items-center gap-2 self-end text-sm">
-        <input name="active" type="checkbox" [(ngModel)]="model.active" class="h-4 w-4" />
-        <span class="font-medium text-neutral-600">Activo</span>
+      <label class="flex items-center gap-2 self-end pb-2 text-sm text-neutral-300">
+        <input name="active" type="checkbox" [(ngModel)]="model.active" class="h-4 w-4 accent-orange-500" />
+        Activo
       </label>
     }
   </div>
 
   @if (error()) {
-    <p class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ error() }}</p>
+    <p class="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">{{ error() }}</p>
   }
 
-  <div class="mt-5 flex gap-2">
-    <button
-      type="submit" [disabled]="saving()"
-      class="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 disabled:opacity-60"
-    >
+  <div class="mt-6 flex gap-2">
+    <button type="submit" [disabled]="saving()" class="btn-primary">
       {{ saving() ? 'Guardando…' : 'Guardar' }}
     </button>
-    <button
-      type="button" (click)="cancelled.emit()"
-      class="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-50"
-    >
-      Cancelar
-    </button>
+    <button type="button" (click)="cancelled.emit()" class="btn-ghost">Cancelar</button>
   </div>
 </form>

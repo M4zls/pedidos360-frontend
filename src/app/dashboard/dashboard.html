@@ -1,35 +1,46 @@
-<section>
-  <h2 class="mb-1 text-xl font-semibold">Panel</h2>
-  <p class="mb-6 text-sm text-neutral-500">
-    Abrí el menú de perfil (arriba a la derecha) para ver los datos de tu cuenta.
-  </p>
+<div class="mx-auto max-w-3xl px-5 py-10">
+  <h1 class="font-display text-3xl font-extrabold tracking-tight text-white">Mi cuenta</h1>
+  <p class="mt-1 text-sm text-neutral-400">Datos de tu sesión, validados por el backend.</p>
 
   @if (users.loading()) {
-    <p class="text-neutral-500">Cargando datos del usuario autenticado…</p>
+    <p class="mt-8 text-neutral-500">Cargando…</p>
   }
-
   @if (users.error()) {
-    <p class="rounded-md bg-red-50 px-3 py-2 text-red-700">{{ users.error() }}</p>
+    <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ users.error() }}</p>
   }
 
   @if (users.profile(); as profile) {
-    <div class="rounded-xl border border-neutral-200 bg-white p-5">
-      <p class="mb-4">
-        El backend validó tu token de
-        <strong>{{ users.providerLabel(profile.provider) }}</strong>
-        correctamente.
-      </p>
-
+    <div class="card mt-6 p-6">
       <div class="flex items-center gap-4">
-        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-lg font-bold text-white">
+        <span class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 font-display text-xl font-extrabold text-white">
           {{ users.initials() }}
         </span>
-        <ul class="space-y-1 text-sm">
-          <li><strong>Nombre:</strong> {{ profile.name }}</li>
-          <li><strong>Email:</strong> {{ profile.email }}</li>
-          <li><strong>Sub (ID de usuario):</strong> <span class="font-mono text-xs">{{ profile.sub }}</span></li>
-        </ul>
+        <div>
+          <p class="font-display text-lg font-bold text-white">{{ profile.name }}</p>
+          <p class="text-sm text-neutral-400">{{ profile.email }}</p>
+        </div>
       </div>
+
+      <dl class="mt-6 grid grid-cols-1 gap-x-6 gap-y-3 border-t border-white/5 pt-5 text-sm sm:grid-cols-2">
+        <div class="flex justify-between sm:block">
+          <dt class="text-neutral-500">Proveedor</dt>
+          <dd class="text-white">{{ users.providerLabel(profile.provider) }}</dd>
+        </div>
+        <div class="flex justify-between sm:block">
+          <dt class="text-neutral-500">Roles (Entra)</dt>
+          <dd class="text-white">{{ rolesText() }}</dd>
+        </div>
+        @if (auth.canSwitchRoles()) {
+          <div class="flex justify-between sm:block">
+            <dt class="text-neutral-500">Actuando como</dt>
+            <dd class="text-orange-300">{{ users.roleLabel(auth.role() ?? undefined) }}</dd>
+          </div>
+        }
+        <div class="flex justify-between sm:block">
+          <dt class="text-neutral-500">ID</dt>
+          <dd class="font-mono text-xs text-neutral-400">{{ profile.sub }}</dd>
+        </div>
+      </dl>
     </div>
   }
-</section>
+</div>

@@ -5,6 +5,7 @@ import { InventoryService } from './inventory.service';
 import { Product } from './inventory.models';
 import { ProductForm } from './product-form';
 import { MovementPanel } from './movement-panel';
+import { FoodImage } from '../shared/food-image';
 
 type Panel =
   | { kind: 'none' }
@@ -14,7 +15,7 @@ type Panel =
 
 @Component({
   selector: 'app-inventory-page',
-  imports: [FormsModule, CurrencyPipe, ProductForm, MovementPanel],
+  imports: [FormsModule, CurrencyPipe, ProductForm, MovementPanel, FoodImage],
   templateUrl: './inventory-page.html',
 })
 export class InventoryPage implements OnInit {

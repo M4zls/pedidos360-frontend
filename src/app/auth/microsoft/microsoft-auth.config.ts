@@ -3,24 +3,23 @@ import { LogLevel, Configuration } from '@azure/msal-browser';
 // ============================================================
 //  App Registration de Azure AD (Microsoft Entra ID).
 //
-//  Estos valores estan tomados del repo de referencia
-//  https://github.com/CVm0/pedidos360-frontend
-//  (src/environments/environment.ts). Son de un App Registration
-//  ajeno, asi que hay dos limitaciones que NO se pueden cambiar
-//  desde este codigo:
+//  Flujo B2B: la app vive en el inquilino `c450c5ae-...` y las cuentas
+//  @duocuc.cl entran como INVITADOS (guests) de ese inquilino. Por eso
+//  el authority es ese inquilino (el "resource tenant"), no `common`:
+//  el consentimiento y la aprobacion los da el admin de `c450c5ae`,
+//  sin depender del admin de DuocUC.
 //
-//   1. Es "single tenant": solo pueden iniciar sesion cuentas del
-//      directorio c450c5ae-... (la organizacion de ese registro).
-//      Cuentas personales u otras organizaciones -> AADSTS50020.
-//   2. Las Redirect URI validas son las que registraron ellos en
-//      Azure. Por eso `redirectUri` / `postLogoutRedirectUri` de
-//      abajo tienen que coincidir EXACTAMENTE con
-//      http://localhost:4200/auth/callback  y  .../login
-//      Si se cambian, Azure responde AADSTS50011.
+//  Requisitos en Azure para que funcione:
+//   - App "Supported account types" = "Accounts in any organizational
+//     directory (Multitenant)".  Con "+ personal accounts" + tenant fijo
+//     Azure responde AADSTS500208.
+//   - Cada cuenta @duocuc.cl invitada y con la invitacion ACEPTADA.
+//   - Enterprise app -> Permissions -> "Grant admin consent".
+//   - Redirect URI de abajo registradas como "Single-page application
+//     (SPA)" (si no, AADSTS50011).
 //
-//  Para tener control total (multi-tenant, cuentas personales, otras
-//  Redirect URI) hay que crear un App Registration propio y reemplazar
-//  MICROSOFT_CLIENT_ID + MICROSOFT_TENANT.
+//  Para cambiar de App Registration: reemplazar MICROSOFT_CLIENT_ID +
+//  MICROSOFT_TENANT (y `app.auth.microsoft.client-id` en el backend).
 // ============================================================
 export const MICROSOFT_CLIENT_ID = '89fde275-566d-498a-a663-bbed17a2a29d';
 export const MICROSOFT_TENANT = 'c450c5ae-3cee-44d6-b081-b1d7b50eaf5d';

@@ -29,7 +29,7 @@ export class AuthCallback implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.router.navigateByUrl(this.auth.isAuthenticated ? '/dashboard' : '/');
+      this.router.navigateByUrl(this.auth.isAuthenticated ? '/home' : '/');
     }, 2500);
   }
 }

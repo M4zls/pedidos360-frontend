@@ -30,10 +30,37 @@ organización y la Redirect URI no se puede cambiar. Para control total, creá t
 propio App Registration y reemplazá `MICROSOFT_CLIENT_ID` / `MICROSOFT_TENANT`
 (y `app.auth.microsoft.client-id` en el backend).
 
+## Roles y rutas
+
+Cuentas de la demo:
+
+| Login | Rol |
+| --- | --- |
+| **Continuar con Microsoft** (cam.carrascop) | Administrador |
+| `operador` / `operador123` | Operador |
+| `cliente` / `cliente123` | Cliente |
+
+`GET /api/me` devuelve `roles[]`. `UserService` los copia a `AuthService.roles`.
+Si un usuario tuviera más de uno, el header muestra un selector **"Actuar como"**
+(`AuthService.activeRole`, solo UI). El menú de perfil tiene **"Actualizar
+permisos"** (`forceRefresh` del token) para tomar cambios de rol sin cerrar
+sesión. `roleGuard(...)` protege las rutas según el rol activo.
+
+| Ruta            | Acceso          | Qué es                                                      |
+| --------------- | --------------- | --------------------------------------------------------- |
+| `/home`         | autenticado     | Catálogo. El CLIENTE arma un pedido (carrito) y lo confirma.|
+| `/orders`       | autenticado     | CLIENTE: sus pedidos. Staff: todos + cambio de estado.      |
+| `/inventory`    | ADMIN/OPERADOR  | Gestión de productos y stock.                               |
+| `/admin/users`  | ADMIN           | Cambiar el rol de cada usuario.                             |
+| `/dashboard`    | autenticado     | Datos de la cuenta (incluye el rol).                        |
+
 ## Estructura (`src/app/`)
 
 - `login/` — pantalla de login a pantalla completa (Microsoft + usuario/contraseña).
-- `auth/` — `AuthService` (estado de sesión), `authGuard`, config MSAL y `callback/` (Redirect URI).
+- `auth/` — `AuthService` (sesión + rol), `authGuard`, `roleGuard`, config MSAL y `callback/`.
+- `home/` — `/home`: catálogo + carrito para armar pedidos (CLIENTE).
+- `orders/` — `/orders`: `OrdersService` + pantalla de pedidos (cliente y staff).
+- `admin/` — `/admin/users`: administración de roles.
 - `dashboard/` — pantalla protegida; consume `GET /api/me`.
 - `user/` — `UserService` + menú de perfil del header.
 - `inventory/` — pantalla `/inventory`: tabla de productos, filtros, alta/edición y movimientos de stock (consume `/api/inventory/**`).
@@ -44,12 +71,15 @@ El header de la app solo se muestra cuando hay sesión iniciada.
 
 ## API y gateway
 
-El front llama a rutas **relativas** (`/api/...`). Quién las resuelve:
+El front llama a rutas **relativas** (`/api/...`). El gateway enruta por prefijo:
 
-- **Desarrollo** (`npm start`): `proxy.conf.json` redirige `/api` → `http://localhost:8080`.
-  Este es el gateway mientras desarrollás.
-- **Producción**: `nginx.conf` — nginx sirve el SPA y hace de **API
-  Gateway**, enrutando por prefijo (`/api/auth`, `/api/me`, `/api/inventory`) al
-  servicio que corresponda (`AUTH_URL` / `INVENTORY_URL`). No es un servicio
-  aparte: es config de nginx. Se despliega poniendo esa config en un nginx que
-  sirva el contenido de `dist/`.
+| Prefijo | Servicio |
+| --- | --- |
+| `/api/orders` | `orders-service` (:8081) |
+| `/api/inventory` | `inventory-service` (:8083) |
+| `/api/auth`, `/api/me`, `/api/admin` | `auth-service` (:8080) |
+
+- **Desarrollo** (`npm start`): `proxy.conf.json` (`/api/orders` → :8081,
+  `/api/inventory` → :8083, `/api` → :8080).
+- **Producción**: `nginx.conf` / `nginx.docker.conf` — nginx sirve el SPA y hace
+  de gateway. Se despliega poniendo esa config en un nginx que sirva `dist/`.
