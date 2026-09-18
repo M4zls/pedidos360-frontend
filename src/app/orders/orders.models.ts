@@ -2,6 +2,7 @@ export type OrderStatus =
   | 'PENDIENTE'
   | 'EN_PREPARACION'
   | 'LISTO'
+  | 'DESPACHADO'
   | 'ENTREGADO'
   | 'CANCELADO';
 
@@ -35,6 +36,7 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDIENTE: 'Pendiente',
   EN_PREPARACION: 'En preparación',
   LISTO: 'Listo',
+  DESPACHADO: 'Despachado',
   ENTREGADO: 'Entregado',
   CANCELADO: 'Cancelado',
 };
@@ -44,6 +46,7 @@ export const STATUS_BADGE: Record<OrderStatus, string> = {
   PENDIENTE: 'bg-amber-500/15 text-amber-300',
   EN_PREPARACION: 'bg-sky-500/15 text-sky-300',
   LISTO: 'bg-indigo-500/15 text-indigo-300',
+  DESPACHADO: 'bg-violet-500/15 text-violet-300',
   ENTREGADO: 'bg-emerald-500/15 text-emerald-300',
   CANCELADO: 'bg-white/10 text-neutral-400',
 };
@@ -52,5 +55,12 @@ export const STATUS_BADGE: Record<OrderStatus, string> = {
 export const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   PENDIENTE: 'EN_PREPARACION',
   EN_PREPARACION: 'LISTO',
-  LISTO: 'ENTREGADO',
+  LISTO: 'DESPACHADO',
+  DESPACHADO: 'ENTREGADO',
 };
+
+/** Pedidos que le importan a cocina: todavia no estan listos. */
+export const KITCHEN_STATUSES: OrderStatus[] = ['PENDIENTE', 'EN_PREPARACION'];
+
+/** Pedidos que le importan a despacho: listos para salir o ya en camino. */
+export const DISPATCH_STATUSES: OrderStatus[] = ['LISTO', 'DESPACHADO'];

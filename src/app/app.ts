@@ -1,15 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
-import { AuthService, Role } from './auth/auth.service';
+import { AuthService } from './auth/auth.service';
 import { msalLoginRequest } from './auth/microsoft/microsoft-auth.config';
+import { ConsentModal } from './consent/consent-modal';
+import { NotificationBell } from './notifications/notification-bell';
 import { UserMenu } from './user/user-menu';
 import { UserService } from './user/user.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UserMenu],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, UserMenu, NotificationBell, ConsentModal],
   templateUrl: './app.html',
 })
 export class App implements OnInit {
@@ -30,34 +31,34 @@ export class App implements OnInit {
     return this.authSvc;
   }
 
-  /** Selector "Actuar como": cambia el rol activo y vuelve al inicio para que
-   *  los guards re-evaluen la ruta actual con el nuevo rol. */
-  actAs(role: Role): void {
-    this.authSvc.actAs(role);
-    this.router.navigateByUrl('/home');
+  /** Logo del header: a donde volver segun el rol (OPERADOR no tiene /home). */
+  get landingRoute(): string {
+    return this.authSvc.isOperador() ? '/kitchen' : '/home';
+  }
+
+  /** `null` = perfil todavia no cargado: no mostrar el modal hasta saber de verdad. */
+  get showConsentModal(): boolean {
+    return this.authSvc.consentGiven() === false;
   }
 
   /**
-   * Pide un token nuevo a Azure ignorando la cache (forceRefresh) para tomar
-   * cambios de App Roles sin cerrar sesion, y recarga el perfil. Para el login
-   * local solo recarga /api/me.
+   * Pide un token nuevo a Azure (forceRefresh) y recarga el perfil desde
+   * /api/me — el rol es fijo por email en el backend, así que esto sirve para
+   * tomar un cambio de esa config sin cerrar sesión.
    */
   refreshPermissions(): void {
     const account =
       this.msal.instance.getActiveAccount() ?? this.msal.instance.getAllAccounts()[0];
-    if (this.authSvc.provider === 'microsoft' && account) {
-      this.msal
-        .acquireTokenSilent({ account, scopes: msalLoginRequest.scopes, forceRefresh: true })
-        .subscribe({
-          next: (result) => {
-            this.authSvc.setMicrosoftSession(account, result.idToken);
-            this.users.ensureLoaded(true);
-          },
-          error: (err) => console.error('refresh token', err),
-        });
-    } else {
-      this.users.ensureLoaded(true);
-    }
+    if (!account) return;
+    this.msal
+      .acquireTokenSilent({ account, scopes: msalLoginRequest.scopes, forceRefresh: true })
+      .subscribe({
+        next: (result) => {
+          this.authSvc.setMicrosoftSession(account, result.idToken);
+          this.users.ensureLoaded(true);
+        },
+        error: (err) => console.error('refresh token', err),
+      });
   }
 
   ngOnInit(): void {
@@ -93,13 +94,8 @@ export class App implements OnInit {
   }
 
   logout(): void {
-    const wasMicrosoft = this.authSvc.provider === 'microsoft';
     this.authSvc.clear();
     this.users.clear();
-    if (wasMicrosoft) {
-      this.msal.logoutRedirect();
-    } else {
-      this.router.navigateByUrl('/');
-    }
+    this.msal.logoutRedirect();
   }
 }

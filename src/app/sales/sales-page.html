@@ -1,0 +1,55 @@
+<div class="mx-auto max-w-4xl px-5 py-10">
+  <div>
+    <h1 class="font-display text-3xl font-extrabold tracking-tight text-white">Ventas</h1>
+    <p class="mt-1 text-sm text-neutral-400">Totales de pedidos, agrupados por estado.</p>
+  </div>
+
+  @if (sales.loading()) {
+    <p class="mt-8 text-neutral-500">Cargando reporte…</p>
+  }
+  @if (sales.error()) {
+    <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ sales.error() }}</p>
+  }
+
+  @if (sales.report(); as report) {
+    <div class="mt-6 grid gap-4 sm:grid-cols-3">
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Ingresos (entregados)</p>
+        <p class="mt-2 font-display text-2xl font-extrabold text-white">
+          {{ report.totalRevenue | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+        </p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Pedidos activos</p>
+        <p class="mt-2 font-display text-2xl font-extrabold text-white">{{ report.activeCount }}</p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-neutral-500">Cancelados</p>
+        <p class="mt-2 font-display text-2xl font-extrabold text-white">{{ report.cancelledCount }}</p>
+      </div>
+    </div>
+
+    <div class="card mt-6 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-white/10 text-left text-xs uppercase tracking-wide text-neutral-500">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Estado</th>
+            <th class="px-4 py-3 text-right font-semibold">Pedidos</th>
+            <th class="px-4 py-3 text-right font-semibold">Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          @for (row of report.byStatus; track row.status) {
+            <tr>
+              <td class="px-4 py-3 text-white">{{ labels[row.status] }}</td>
+              <td class="px-4 py-3 text-right text-neutral-300">{{ row.count }}</td>
+              <td class="px-4 py-3 text-right text-neutral-300">
+                {{ row.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

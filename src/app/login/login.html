@@ -19,7 +19,8 @@
     <button
       type="button"
       (click)="loginMicrosoft()"
-      class="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/95 px-4 py-3 font-medium text-neutral-800 transition hover:bg-white"
+      class="flex w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/95 px-4 py-3 font-medium text-neutral-800 transition hover:bg-white
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/70"
     >
       <svg width="18" height="18" viewBox="0 0 21 21" aria-hidden="true">
         <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -29,57 +30,5 @@
       </svg>
       Continuar con Microsoft
     </button>
-
-    <div class="my-6 flex items-center gap-3 text-xs uppercase tracking-wide text-white/40">
-      <span class="h-px flex-1 bg-white/15"></span>
-      o con usuario
-      <span class="h-px flex-1 bg-white/15"></span>
-    </div>
-
-    <form (ngSubmit)="login()" class="space-y-4">
-      <div>
-        <label for="username" class="mb-1.5 block text-sm font-medium text-white/80">Usuario</label>
-        <input
-          id="username"
-          name="username"
-          type="text"
-          autocomplete="username"
-          [(ngModel)]="username"
-          placeholder="demo"
-          class="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-white placeholder-white/30 outline-none transition focus:border-orange-400/60 focus:bg-white/10"
-        />
-      </div>
-
-      <div>
-        <label for="password" class="mb-1.5 block text-sm font-medium text-white/80">Contraseña</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autocomplete="current-password"
-          [(ngModel)]="password"
-          placeholder="demo123"
-          class="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-white placeholder-white/30 outline-none transition focus:border-orange-400/60 focus:bg-white/10"
-        />
-      </div>
-
-      @if (error) {
-        <p class="rounded-xl border border-red-400/30 bg-red-500/15 px-4 py-2.5 text-sm text-red-100">{{ error }}</p>
-      }
-
-      <button
-        type="submit"
-        [disabled]="loading"
-        class="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-orange-900/30 transition hover:from-orange-400 hover:to-orange-500 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {{ loading ? 'Entrando…' : 'Entrar' }}
-      </button>
-    </form>
-
-    <div class="mt-6 space-y-1 text-center text-xs text-white/40">
-      <p>Microsoft → Administrador</p>
-      <p><span class="text-white/60">operador</span> / <span class="text-white/60">operador123</span> → Operador</p>
-      <p><span class="text-white/60">cliente</span> / <span class="text-white/60">cliente123</span> → Cliente</p>
-    </div>
   </div>
 </div>

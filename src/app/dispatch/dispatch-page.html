@@ -1,0 +1,46 @@
+<div class="mx-auto max-w-5xl px-5 py-10">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-display text-3xl font-extrabold tracking-tight text-white">Despacho</h1>
+      <p class="mt-1 text-sm text-neutral-400">Pedidos listos para salir o en camino. Se actualiza solo.</p>
+    </div>
+    <button type="button" (click)="reload()" class="btn-ghost focus-visible:ring-2 focus-visible:ring-orange-500/70">
+      Actualizar
+    </button>
+  </div>
+
+  @if (orders.loading()) {
+    <p class="mt-8 text-neutral-500">Cargando pedidos…</p>
+  }
+  @if (orders.error()) {
+    <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ orders.error() }}</p>
+  }
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-2">
+    @for (o of visible(); track o.id) {
+      <div class="card p-5">
+        <div class="flex items-center justify-between gap-3">
+          <span class="font-display font-bold text-white">Pedido #{{ o.id }}</span>
+          <span class="badge {{ badge[o.status] }}">{{ labels[o.status] }}</span>
+        </div>
+        <p class="mt-1 text-xs text-neutral-500">
+          {{ o.createdAt | date: 'short' }} · {{ o.customerName || o.customerEmail }}
+        </p>
+
+        @if (nextStatus(o); as next) {
+          <button type="button" (click)="advance(o)"
+            class="btn-primary mt-4 w-full focus-visible:ring-2 focus-visible:ring-orange-500/70">
+            Marcar como {{ labels[next] }}
+          </button>
+        }
+      </div>
+    } @empty {
+      @if (!orders.loading()) {
+        <div class="card col-span-full flex flex-col items-center gap-3 px-6 py-14 text-center">
+          <span class="text-4xl">🛵</span>
+          <p class="text-neutral-400">No hay pedidos para despachar.</p>
+        </div>
+      }
+    }
+  </div>
+</div>

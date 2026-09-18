@@ -27,16 +27,6 @@
           <dd class="text-white">{{ users.providerLabel(profile.provider) }}</dd>
         </div>
         <div class="flex justify-between sm:block">
-          <dt class="text-neutral-500">Roles (Entra)</dt>
-          <dd class="text-white">{{ rolesText() }}</dd>
-        </div>
-        @if (auth.canSwitchRoles()) {
-          <div class="flex justify-between sm:block">
-            <dt class="text-neutral-500">Actuando como</dt>
-            <dd class="text-orange-300">{{ users.roleLabel(auth.role() ?? undefined) }}</dd>
-          </div>
-        }
-        <div class="flex justify-between sm:block">
           <dt class="text-neutral-500">ID</dt>
           <dd class="font-mono text-xs text-neutral-400">{{ profile.sub }}</dd>
         </div>

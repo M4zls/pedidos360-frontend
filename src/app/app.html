@@ -2,7 +2,7 @@
   <div class="min-h-screen">
     <header class="sticky top-0 z-30 border-b border-white/10 bg-[var(--color-ink)]/85 backdrop-blur-xl">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <a routerLink="/home" class="flex items-center gap-2 no-underline">
+        <a [routerLink]="landingRoute" class="flex items-center gap-2 no-underline">
           <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 font-display text-lg font-extrabold text-white shadow-lg shadow-orange-950/40">P</span>
           <span class="font-display text-xl font-extrabold tracking-tight text-white">
             Pedidos<span class="text-orange-500">360</span>
@@ -10,29 +10,23 @@
         </a>
 
         <nav class="flex items-center gap-1">
-          <a routerLink="/home" routerLinkActive="nav-link-active" class="nav-link">Carta</a>
-          <a routerLink="/orders" routerLinkActive="nav-link-active" class="nav-link">
-            {{ auth.isStaff() ? 'Pedidos' : 'Mis pedidos' }}
-          </a>
+          @if (!auth.isOperador()) {
+            <a routerLink="/home" routerLinkActive="nav-link-active" class="nav-link">Carta</a>
+            <a routerLink="/orders" routerLinkActive="nav-link-active" class="nav-link">
+              {{ auth.isAdmin() ? 'Pedidos' : 'Mis pedidos' }}
+            </a>
+          }
           @if (auth.isStaff()) {
             <a routerLink="/inventory" routerLinkActive="nav-link-active" class="nav-link">Inventario</a>
+            <a routerLink="/kitchen" routerLinkActive="nav-link-active" class="nav-link">Cocina</a>
+            <a routerLink="/dispatch" routerLinkActive="nav-link-active" class="nav-link">Despacho</a>
           }
           @if (auth.isAdmin()) {
-            <a routerLink="/admin/users" routerLinkActive="nav-link-active" class="nav-link">Usuarios</a>
-          }
-
-          @if (auth.canSwitchRoles()) {
-            <select
-              class="ml-2 rounded-lg border border-white/15 bg-white/5 px-2 py-1.5 text-xs font-medium text-white outline-none"
-              [ngModel]="auth.role()" (ngModelChange)="actAs($event)"
-            >
-              @for (r of auth.roles(); track r) {
-                <option class="bg-neutral-900" [ngValue]="r">Ver como {{ r }}</option>
-              }
-            </select>
+            <a routerLink="/sales" routerLinkActive="nav-link-active" class="nav-link">Ventas</a>
           }
 
           <span class="mx-1 h-6 w-px bg-white/10"></span>
+          <app-notification-bell />
           <app-user-menu (logout)="logout()" (refresh)="refreshPermissions()" />
         </nav>
       </div>
@@ -46,6 +40,10 @@
       Pedidos360 — demo académica
     </footer>
   </div>
+
+  @if (showConsentModal) {
+    <app-consent-modal />
+  }
 } @else {
   <router-outlet />
 }

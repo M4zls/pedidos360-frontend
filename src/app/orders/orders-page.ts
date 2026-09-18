@@ -31,6 +31,7 @@ export class OrdersPage implements OnInit {
     'PENDIENTE',
     'EN_PREPARACION',
     'LISTO',
+    'DESPACHADO',
     'ENTREGADO',
     'CANCELADO',
   ];

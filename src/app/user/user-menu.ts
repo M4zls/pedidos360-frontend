@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 
 /**
  * Menu de perfil del header: un boton con el avatar que despliega un panel
- * con los datos del usuario (Microsoft o login local) y el cierre de sesion.
+ * con los datos del usuario y el cierre de sesion.
  */
 @Component({
   selector: 'app-user-menu',

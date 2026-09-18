@@ -1,0 +1,40 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="consent-title"
+>
+  <div class="card w-full max-w-md p-6">
+    <h2 id="consent-title" class="font-display text-xl font-extrabold text-white">
+      Tus datos, antes de arrancar
+    </h2>
+
+    <p class="mt-3 text-sm text-neutral-300">
+      Para poder usar Pedidos360 guardamos lo mínimo necesario:
+    </p>
+    <ul class="mt-3 space-y-1.5 text-sm text-neutral-400">
+      <li>• Tu <strong class="text-neutral-200">email y nombre</strong>, para identificarte.</li>
+      <li>• Tu <strong class="text-neutral-200">rol</strong> (cliente, operador o admin).</li>
+      <li>• El <strong class="text-neutral-200">historial de tus pedidos</strong>, para que puedas verlos y hacerles seguimiento.</li>
+    </ul>
+    <p class="mt-3 text-sm text-neutral-400">
+      No compartimos estos datos con terceros. Podés pedir que los eliminemos escribiéndole a un administrador.
+    </p>
+
+    @if (error()) {
+      <p class="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+        {{ error() }}
+      </p>
+    }
+
+    <button
+      #acceptButton
+      type="button"
+      (click)="accept()"
+      [disabled]="saving()"
+      class="btn-primary mt-5 w-full focus-visible:ring-2 focus-visible:ring-orange-500/70"
+    >
+      {{ saving() ? 'Guardando…' : 'Aceptar y continuar' }}
+    </button>
+  </div>
+</div>

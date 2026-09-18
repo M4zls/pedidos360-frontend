@@ -1,35 +1,38 @@
 import { LogLevel, Configuration } from '@azure/msal-browser';
 
 // ============================================================
-//  App Registration de Azure AD (Microsoft Entra ID).
+//  App Registration de Microsoft Entra External ID (CIAM) - PROPIO.
 //
-//  Flujo B2B: la app vive en el inquilino `c450c5ae-...` y las cuentas
-//  @duocuc.cl entran como INVITADOS (guests) de ese inquilino. Por eso
-//  el authority es ese inquilino (el "resource tenant"), no `common`:
-//  el consentimiento y la aprobacion los da el admin de `c450c5ae`,
-//  sin depender del admin de DuocUC.
+//  El tenant c450c5ae-... (dominio por defecto proyecto3602.onmicrosoft.com)
+//  es un tenant EXTERNAL ID (CIAM), no un tenant Entra ID "workforce"
+//  clasico. Por eso la authority usa el dominio "ciamlogin.com" y no
+//  "login.microsoftonline.com": con este ultimo Azure devuelve
+//  AADSTS500208 "The domain is not a valid login domain for the account
+//  type" (ver https://medium.com/the-new-control-plane/using-entra-external-id-ciam-with-the-msal-samples-86e6de6a8f20).
+//  Las cuentas del proyecto son NATIVAS de ese tenant (no invitados B2B, no
+//  "common"): entran directo, sin pantalla de consentimiento de otro tenant.
 //
 //  Requisitos en Azure para que funcione:
-//   - App "Supported account types" = "Accounts in any organizational
-//     directory (Multitenant)".  Con "+ personal accounts" + tenant fijo
-//     Azure responde AADSTS500208.
-//   - Cada cuenta @duocuc.cl invitada y con la invitacion ACEPTADA.
-//   - Enterprise app -> Permissions -> "Grant admin consent".
+//   - App "Supported account types" = "Accounts in this organizational
+//     directory only" (single tenant).
 //   - Redirect URI de abajo registradas como "Single-page application
 //     (SPA)" (si no, AADSTS50011).
+//   - La cuenta con la que se loguea tiene que ser miembro nativo de este
+//     tenant (o invitado y con la invitacion aceptada).
 //
 //  Para cambiar de App Registration: reemplazar MICROSOFT_CLIENT_ID +
-//  MICROSOFT_TENANT (y `app.auth.microsoft.client-id` en el backend).
+//  MICROSOFT_TENANT (y `app.auth.microsoft.client-id` en auth-service /
+//  inventory-service / orders-service).
 // ============================================================
-export const MICROSOFT_CLIENT_ID = '89fde275-566d-498a-a663-bbed17a2a29d';
+export const MICROSOFT_CLIENT_ID = '7b48efc0-534c-4b13-9e02-4c60a129f151';
 export const MICROSOFT_TENANT = 'c450c5ae-3cee-44d6-b081-b1d7b50eaf5d';
 
 export const msalConfig: Configuration = {
   auth: {
     clientId: MICROSOFT_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${MICROSOFT_TENANT}`,
+    authority: `https://${MICROSOFT_TENANT}.ciamlogin.com/${MICROSOFT_TENANT}`,
     // Deben estar registradas como "Single-page application" en el
-    // App Registration de referencia (ver nota arriba).
+    // App Registration (ver nota arriba).
     redirectUri: 'http://localhost:4200/auth/callback',
     postLogoutRedirectUri: 'http://localhost:4200/login',
     // Manejamos la navegacion post-login nosotros (App -> /dashboard),

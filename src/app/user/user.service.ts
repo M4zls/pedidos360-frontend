@@ -2,27 +2,22 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService, Role } from '../auth/auth.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
-/** Datos del usuario autenticado que devuelve GET /api/me (Microsoft o local). */
+/** Datos del usuario autenticado que devuelve GET /api/me. */
 export interface UserProfile {
   sub?: string;
   name?: string;
   email?: string;
-  picture?: string;
-  provider?: 'microsoft' | 'local';
-  /** App Roles de Entra asignados (o el rol por email si el token no los trae). */
+  provider?: 'microsoft';
+  /** Rol resuelto por email (fijo, ver app.roles en el backend). */
   roles?: Role[];
+  /** Si ya acepto guardar sus datos (proteccion de datos). */
+  consentGiven?: boolean;
 }
 
 const PROVIDER_LABELS: Record<string, string> = {
   microsoft: 'Microsoft',
-  local: 'usuario y contraseña',
-};
-
-export const ROLE_LABELS: Record<Role, string> = {
-  ADMIN: 'Administrador',
-  OPERADOR: 'Operador',
-  CLIENTE: 'Cliente',
 };
 
 /**
@@ -34,6 +29,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 export class UserService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private notifications = inject(NotificationsService);
 
   readonly profile = signal<UserProfile | null>(null);
   readonly loading = signal(false);
@@ -41,7 +37,7 @@ export class UserService {
 
   private inFlight: Promise<UserProfile | null> | null = null;
 
-  /** Iniciales para el avatar (no hay foto en los tokens de Microsoft ni local). */
+  /** Iniciales para el avatar (no hay foto en el token de Microsoft). */
   readonly initials = computed(() => {
     const name = this.profile()?.name ?? this.auth.displayName() ?? '';
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -53,10 +49,6 @@ export class UserService {
 
   providerLabel(provider?: string): string {
     return PROVIDER_LABELS[provider ?? ''] ?? '—';
-  }
-
-  roleLabel(role?: Role): string {
-    return role ? ROLE_LABELS[role] : '—';
   }
 
   /** Trae el perfil desde el backend. No repite la llamada si ya esta cargado (salvo force). */
@@ -85,6 +77,8 @@ export class UserService {
       .then((profile) => {
         this.profile.set(profile);
         this.auth.setRoles(profile.roles ?? []);
+        this.auth.consentGiven.set(profile.consentGiven ?? false);
+        this.notifications.start();
         this.loading.set(false);
         return profile;
       })
@@ -101,10 +95,22 @@ export class UserService {
     return this.inFlight;
   }
 
+  /** Registra el consentimiento de datos del usuario logueado. */
+  giveConsent(): Promise<void> {
+    return firstValueFrom(this.http.post<void>('/api/me/consent', {})).then(() => {
+      this.auth.consentGiven.set(true);
+      const current = this.profile();
+      if (current) {
+        this.profile.set({ ...current, consentGiven: true });
+      }
+    });
+  }
+
   clear(): void {
     this.profile.set(null);
     this.error.set(null);
     this.loading.set(false);
     this.inFlight = null;
+    this.notifications.stop();
   }
 }
