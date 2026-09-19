@@ -8,6 +8,8 @@ name: CI frontend
 on:
   push:
     branches:
+      - develop
+      - main
       - "feature/**"
       - "bugfix/**"
       - "release/**"
@@ -55,6 +57,9 @@ jobs:
 
   docker-build:
     name: Verificar Dockerfile
+    # En develop y main esto ya lo cubre el job "build" del CD, que ademas
+    # publica en ECR: correrlo aca seria construir dos veces lo mismo.
+    if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
