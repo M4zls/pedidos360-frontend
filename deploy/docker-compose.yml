@@ -1,0 +1,13 @@
+name: pedidos360-front
+
+services:
+  front:
+    build: ..
+    container_name: pedidos360-front
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      # Fuera de Kubernetes no hay Ingress: nginx tiene que proxear /api/*.
+      ROUTING_MODE: gateway
+      API_GATEWAY_URL: ${API_GATEWAY_URL}

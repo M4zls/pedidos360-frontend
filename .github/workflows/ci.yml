@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────
+#  CI del front — build de Angular + tests (vitest).
+#  No toca AWS ni necesita credenciales: corre en las ramas de trabajo
+#  de gitflow y en los PR hacia develop/main.
+# ─────────────────────────────────────────────────────────────
+name: CI frontend
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - "feature/**"
+      - "bugfix/**"
+      - "release/**"
+      - "hotfix/**"
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build + test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Informativo, no bloqueante: el repo ya tiene .prettierrc pero nunca
+      # corrió este chequeo en CI. Si el codebase ya está formateado, sacá el
+      # continue-on-error para que el formato pase a ser obligatorio.
+      - name: Formato (prettier)
+        continue-on-error: true
+        run: npx prettier --check "src/**/*.{ts,html,css}"
+
+      - name: Tests
+        run: npm test -- --watch=false
+
+      - name: Build de produccion
+        run: npm run build
+
+  docker-build:
+    name: Verificar Dockerfile
+    # En develop y main esto ya lo cubre el job "build" del CD, que ademas
+    # publica en ECR: correrlo aca seria construir dos veces lo mismo.
+    if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build (sin push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          cache-from: type=gha,scope=front
+          cache-to: type=gha,mode=max,scope=front
