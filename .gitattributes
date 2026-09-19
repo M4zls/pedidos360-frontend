@@ -1,0 +1,16 @@
+# ─────────────────────────────────────────────────────────────
+#  Finales de línea. El repo se edita en Windows (core.autocrlf), pero
+#  esto se ejecuta en Linux. Importa especialmente para
+#  docker-entrypoint.d/*.sh: si ese script entra a la imagen con CRLF,
+#  el contenedor no arranca ("bad interpreter").
+#  Forzamos LF para que no dependa de la máquina donde se hizo checkout.
+# ─────────────────────────────────────────────────────────────
+
+* text=auto
+
+*.sh         text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.conf       text eol=lf
+Dockerfile   text eol=lf
+*.md         text eol=lf

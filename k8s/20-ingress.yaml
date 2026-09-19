@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────────────────────
+#  Ingress del front — la raiz del sitio.
+#
+#  Convive con el Ingress del backend (repo pedidos360-backend), que
+#  declara /api/*. Traefik prioriza por longitud de path, asi que
+#  "/api/orders" le gana a "/" sin importar cual se aplico primero.
+# ─────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pedidos360-front
+  namespace: pedidos360
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: front
+                port:
+                  number: 80
