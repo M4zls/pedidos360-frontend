@@ -31,10 +31,15 @@ export const msalConfig: Configuration = {
   auth: {
     clientId: MICROSOFT_CLIENT_ID,
     authority: `https://${MICROSOFT_TENANT}.ciamlogin.com/${MICROSOFT_TENANT}`,
-    // Deben estar registradas como "Single-page application" en el
-    // App Registration (ver nota arriba).
-    redirectUri: 'http://localhost:4200/auth/callback',
-    postLogoutRedirectUri: 'http://localhost:4200/login',
+    // Relativas al origen desde el que se sirve el SPA: en desarrollo queda
+    // http://localhost:4200/... y desplegado, el host real. Antes estaban
+    // hardcodeadas a localhost, asi que en el servidor Microsoft redirigia a
+    // la maquina del usuario y el login no completaba nunca.
+    // AMBAS deben estar registradas como "Single-page application" en el
+    // App Registration (ver nota arriba). Entra exige https para cualquier
+    // host que no sea localhost.
+    redirectUri: `${window.location.origin}/auth/callback`,
+    postLogoutRedirectUri: `${window.location.origin}/login`,
     // Manejamos la navegacion post-login nosotros (App -> /dashboard),
     // asi MSAL no compite volviendo a la URL original.
     navigateToLoginRequestUrl: false,
