@@ -1,16 +1,6 @@
 {
-  "/api/orders": {
-    "target": "http://localhost:8081",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/inventory": {
-    "target": "http://localhost:8083",
-    "secure": false,
-    "changeOrigin": true
-  },
   "/api": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8280",
     "secure": false,
     "changeOrigin": true
   }
