@@ -1,0 +1,9 @@
+# ─────────────────────────────────────────────────────────────
+#  Mismo namespace que el backend. Los dos repos lo aplican (es
+#  idempotente) para que ninguno dependa de que el otro haya
+#  desplegado primero.
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pedidos360
