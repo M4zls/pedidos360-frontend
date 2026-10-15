@@ -1,4 +1,9 @@
 {
+  "/api/admin/rabbitmq": {
+    "target": "http://localhost:8084",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/api/orders": {
     "target": "http://localhost:8081",
     "secure": false,

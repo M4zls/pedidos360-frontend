@@ -10,8 +10,9 @@ export type Role = 'ADMIN' | 'OPERADOR' | 'CLIENTE';
  * Estado de sesion unificado. Unico login: Microsoft (MSAL, flujo redirect).
  *
  * Roles: el backend (GET /api/me) devuelve `roles[]`, pero cada cuenta tiene
- * SIEMPRE uno solo — es fijo por email (ver `app.roles` en el backend). No
- * hay forma de tener ni de elegir mas de uno desde acá.
+ * SIEMPRE uno solo — sale de la App Role asignada en Azure Portal (sin App
+ * Role, el backend rechaza el login). No hay forma de tener ni de elegir mas
+ * de uno desde acá.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {

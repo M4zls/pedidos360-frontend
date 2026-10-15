@@ -10,7 +10,7 @@ export interface UserProfile {
   name?: string;
   email?: string;
   provider?: 'microsoft';
-  /** Rol resuelto por email (fijo, ver app.roles en el backend). */
+  /** Rol de la App Role asignada en Azure Portal (fijo). */
   roles?: Role[];
   /** Si ya acepto guardar sus datos (proteccion de datos). */
   consentGiven?: boolean;

@@ -40,15 +40,16 @@ Cuentas del tenant (`proyecto3602.onmicrosoft.com`):
 | --- | --- |
 | **Continuar con Microsoft** — pedro.porro@proyecto3602.onmicrosoft.com | Administrador |
 | **Continuar con Microsoft** — juanfaure@proyecto3602.onmicrosoft.com | Operador |
-| **Continuar con Microsoft** — cualquier otra cuenta del tenant (ej. raul.perez@) | Cliente |
+| **Continuar con Microsoft** — raul.perez@proyecto3602.onmicrosoft.com | Cliente |
 
-El rol es **fijo por email** (`app.roles` en el backend): no hay pantalla ni
-endpoint para cambiarlo — así ningún usuario puede terminar actuando con un
-rol distinto al que le corresponde. `GET /api/me` devuelve `roles[]`.
-`UserService` los copia a `AuthService.roles`. El menú de perfil tiene
-**"Actualizar permisos"** (`forceRefresh` del token) para tomar cambios de
-rol hechos en `application.yml` sin cerrar sesión. `roleGuard(...)` protege
-las rutas según el rol.
+El rol sale de la **App Role asignada en Azure Portal** (no hay pantalla ni
+endpoint en la app para cambiarlo): sin App Role asignada, el backend
+rechaza el login — no cae a Cliente por defecto. Pasos para asignarla en
+[`backend/auth-service/README.md`](../backend/auth-service/README.md#roles).
+`GET /api/me` devuelve `roles[]`. `UserService` los copia a
+`AuthService.roles`. El menú de perfil tiene **"Actualizar permisos"**
+(`forceRefresh` del token) para tomar un cambio de App Role sin cerrar
+sesión. `roleGuard(...)` protege las rutas según el rol.
 
 | Ruta            | Acceso          | Qué es                                                      |
 | --------------- | --------------- | --------------------------------------------------------- |
