@@ -84,7 +84,7 @@ export class UserService {
       })
       .catch((e) => {
         this.error.set(
-          `No se pudo cargar el perfil (${e.status ?? e.message}). ¿Está corriendo el backend en :8080?`,
+          `No se pudo cargar el perfil (${e.status ?? e.message}). Si recién levantaste el stack, el gateway puede tardar un par de minutos: reintentá en un momento.`,
         );
         this.loading.set(false);
         return null;

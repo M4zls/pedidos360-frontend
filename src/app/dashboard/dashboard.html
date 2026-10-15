@@ -7,6 +7,10 @@
   }
   @if (users.error()) {
     <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ users.error() }}</p>
+    <button type="button" (click)="retry()" [disabled]="users.loading()"
+      class="btn-ghost mt-4 focus-visible:ring-2 focus-visible:ring-orange-500/70">
+      Reintentar
+    </button>
   }
 
   @if (users.profile(); as profile) {

@@ -30,5 +30,8 @@ export const roleGuard = (...allowed: Role[]) => async () => {
   if (role !== null && allowed.includes(role)) {
     return true;
   }
-  return router.parseUrl(role ? FALLBACK_ROUTE[role] : '/home');
+  // Sin rol = /api/me fallo (backend o gateway caido, token vencido). No se
+  // puede mandar a /home: tiene este mismo guard y entraria en loop pidiendo
+  // /api/me sin parar. /dashboard solo exige sesion y muestra el error.
+  return router.parseUrl(role ? FALLBACK_ROUTE[role] : '/dashboard');
 };
