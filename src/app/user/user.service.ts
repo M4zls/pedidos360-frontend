@@ -16,6 +16,13 @@ export interface UserProfile {
   consentGiven?: boolean;
 }
 
+/**
+ * Respuestas de /api/me mientras WSO2 arranca (tarda 2-4 min): 502/504 de
+ * nginx con el Gateway todavia sin escuchar, 404 del Gateway antes de
+ * desplegar las APIs, 503 y 0 (sin respuesta). No son errores del usuario.
+ */
+const GATEWAY_STARTING_STATUSES = [0, 404, 502, 503, 504];
+
 const PROVIDER_LABELS: Record<string, string> = {
   microsoft: 'Microsoft',
 };
@@ -34,6 +41,8 @@ export class UserService {
   readonly profile = signal<UserProfile | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  /** El ultimo fallo de /api/me fue porque el gateway todavia no esta listo. */
+  readonly gatewayStarting = signal(false);
 
   private inFlight: Promise<UserProfile | null> | null = null;
 
@@ -76,6 +85,7 @@ export class UserService {
     this.inFlight = firstValueFrom(this.http.get<UserProfile>('/api/me'))
       .then((profile) => {
         this.profile.set(profile);
+        this.gatewayStarting.set(false);
         this.auth.setRoles(profile.roles ?? []);
         this.auth.consentGiven.set(profile.consentGiven ?? false);
         this.notifications.start();
@@ -83,8 +93,11 @@ export class UserService {
         return profile;
       })
       .catch((e) => {
+        this.gatewayStarting.set(GATEWAY_STARTING_STATUSES.includes(e.status));
         this.error.set(
-          `No se pudo cargar el perfil (${e.status ?? e.message}). Si recién levantaste el stack, el gateway puede tardar un par de minutos: reintentá en un momento.`,
+          this.gatewayStarting()
+            ? 'El gateway (WSO2) todavía está arrancando. Reintentando automáticamente…'
+            : `No se pudo cargar el perfil (${e.status ?? e.message}).`,
         );
         this.loading.set(false);
         return null;
@@ -109,6 +122,7 @@ export class UserService {
   clear(): void {
     this.profile.set(null);
     this.error.set(null);
+    this.gatewayStarting.set(false);
     this.loading.set(false);
     this.inFlight = null;
     this.notifications.stop();

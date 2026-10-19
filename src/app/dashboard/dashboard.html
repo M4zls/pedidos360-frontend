@@ -5,8 +5,17 @@
   @if (users.loading()) {
     <p class="mt-8 text-neutral-500">Cargando…</p>
   }
-  @if (users.error()) {
+  @if (users.error() && users.gatewayStarting()) {
+    <p class="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200" role="status">
+      {{ users.error() }}
+      @if (autoRetries() > 0) {
+        <span class="text-amber-300/70">(intento {{ autoRetries() }})</span>
+      }
+    </p>
+  } @else if (users.error()) {
     <p class="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{{ users.error() }}</p>
+  }
+  @if (users.error()) {
     <button type="button" (click)="retry()" [disabled]="users.loading()"
       class="btn-ghost mt-4 focus-visible:ring-2 focus-visible:ring-orange-500/70">
       Reintentar
