@@ -7,7 +7,9 @@
 #    ROUTING_MODE=ingress  (default) -> Kubernetes: el Ingress rutea /api/*,
 #                                       nginx solo sirve el SPA.
 #    ROUTING_MODE=gateway            -> EC2 suelta con docker compose: nginx
-#                                       reenvia /api/* a ${API_GATEWAY_URL},
+#                                       reenvia /api/* directo a cada servicio
+#                                       (AUTH_SERVICE_URL, INVENTORY_SERVICE_URL,
+#                                       ORDERS_SERVICE_URL, RABBITMQ_ADMIN_URL),
 #                                       que sustituye el envsubst posterior.
 # ─────────────────────────────────────────────────────────────
 set -eu

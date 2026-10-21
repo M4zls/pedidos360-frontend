@@ -2,8 +2,8 @@
 #  Pedidos360 — front (nginx: SPA)
 #
 #  Requiere que el stack de backend (repo pedidos360-backend,
-#  docker-compose.yml de esa carpeta) este levantado primero: ahi
-#  vive el gateway WSO2 que expone /api/* en el puerto 8280.
+#  docker-compose.yml de esa carpeta) este levantado primero: nginx
+#  reenvia /api/* directo a cada servicio, sin gateway intermedio.
 #
 #  Uso:
 #    docker compose up --build     # front en http://localhost:8081
@@ -15,11 +15,14 @@ services:
     build: .
     environment:
       # La imagen arranca en modo "ingress" (Kubernetes: nginx solo sirve el
-      # SPA). Con compose, nginx tiene que reenviar /api/* al Gateway de WSO2
-      # que corre en el compose del backend. host.docker.internal apunta al
-      # host, donde el backend publica el puerto 8280.
+      # SPA). Con compose, nginx reenvia /api/* directo a cada servicio del
+      # backend. host.docker.internal apunta al host, donde el backend
+      # publica sus puertos.
       ROUTING_MODE: gateway
-      API_GATEWAY_URL: http://host.docker.internal:8280
+      AUTH_SERVICE_URL: http://host.docker.internal:8080
+      INVENTORY_SERVICE_URL: http://host.docker.internal:8083
+      ORDERS_SERVICE_URL: http://host.docker.internal:8082
+      RABBITMQ_ADMIN_URL: http://host.docker.internal:8084
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

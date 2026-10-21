@@ -4,7 +4,8 @@
 #
 #  La misma imagen sirve para los dos entornos, segun ROUTING_MODE:
 #    ingress (default) -> Kubernetes; el Ingress rutea /api/*.
-#    gateway           -> EC2/compose; nginx proxea /api/* a ${API_GATEWAY_URL}.
+#    gateway           -> EC2/compose; nginx proxea /api/* directo a cada
+#                          servicio (sin gateway intermedio).
 #  Lo resuelve docker-entrypoint.d/15-pedidos360-routing.sh al arrancar.
 # ─────────────────────────────────────────────────────────────
 
