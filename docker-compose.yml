@@ -2,8 +2,10 @@
 #  Pedidos360 — front (nginx: SPA)
 #
 #  Requiere que el stack de backend (repo pedidos360-backend,
-#  docker-compose.yml de esa carpeta) este levantado primero: nginx
-#  reenvia /api/* directo a cada servicio, sin gateway intermedio.
+#  docker-compose.yml de esa carpeta) este levantado primero: ahi se
+#  crea la red "pedidos360-net", a la que este compose se suma para
+#  que nginx le pegue a cada servicio por nombre (auth, inventory,
+#  orders, rabbitmq-admin) en vez de por host.docker.internal.
 #
 #  Uso:
 #    docker compose up --build     # front en http://localhost:8081
@@ -16,15 +18,20 @@ services:
     environment:
       # La imagen arranca en modo "ingress" (Kubernetes: nginx solo sirve el
       # SPA). Con compose, nginx reenvia /api/* directo a cada servicio del
-      # backend. host.docker.internal apunta al host, donde el backend
-      # publica sus puertos.
+      # backend, por nombre dentro de la red compartida "pedidos360-net"
+      # (puertos internos del contenedor, no los publicados en el host).
       ROUTING_MODE: gateway
-      AUTH_SERVICE_URL: http://host.docker.internal:8080
-      INVENTORY_SERVICE_URL: http://host.docker.internal:8083
-      ORDERS_SERVICE_URL: http://host.docker.internal:8082
-      RABBITMQ_ADMIN_URL: http://host.docker.internal:8084
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      AUTH_SERVICE_URL: http://auth:8080
+      INVENTORY_SERVICE_URL: http://inventory:8083
+      ORDERS_SERVICE_URL: http://orders:8081
+      RABBITMQ_ADMIN_URL: http://rabbitmq-admin:8084
+    networks:
+      - pedidos360-net
     ports:
       - "8081:80"
     restart: unless-stopped
+
+networks:
+  pedidos360-net:
+    name: pedidos360-net
+    external: true
